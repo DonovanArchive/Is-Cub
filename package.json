@@ -1,0 +1,35 @@
+{
+  "name": "@furries-suck/is-cub",
+  "version": "1.0.1",
+  "description": "An ai to detect furry cub content.",
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Donovan Daniels <hewwo@yiff.rocks>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/file-type": "^10.9.1",
+    "@types/node": "^16.11.10",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "@sashido/teachablemachine-node": "github:DonovanDMC/teachablemachine-node",
+    "@tensorflow/tfjs-node": "^3.11.0",
+    "debug": "^4.3.2",
+    "express": "^4.17.1",
+    "file-type": "^17.0.0"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DonovanDMC/Is-Cub.git"
+  },
+  "private": false,
+  "bin": {
+    "is-cub": "./src/bin.js"
+  }
+}
