@@ -2,6 +2,7 @@ import TeachableMachine from "@sashido/teachablemachine-node";
 
 declare namespace IsCub {
 	export function isCub(file: string, sampleSize?: number): Promise<SingleResponse | AnimatedResponse>;
+	// @ts-expect-error
 	export default isCub;
 
 	export interface SingleResponse {
@@ -19,7 +20,7 @@ declare namespace IsCub {
 		overall: Record<"cub" | "notCub", Array<IndividualAnimatedResponse>>;
 	}
 
-	export function getModel(): TeachableMachine; 
+	export function getModel(): TeachableMachine;
 	export function getFrames(vid: string, totalFrames?: number): Promise<{ frames: Array<string>; done(): undefined; }>;
 }
 
