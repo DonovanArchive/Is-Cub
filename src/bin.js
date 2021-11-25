@@ -2,8 +2,6 @@
 import debug from "debug";
 import { program } from "commander";
 import { isCub } from "./index.js";
-import { existsSync } from "fs";
-import fetch from "node-fetch";
 
 program
 	.argument("<input>", "The file or url to classify")

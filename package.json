@@ -1,6 +1,6 @@
 {
   "name": "@furries-suck/is-cub",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An ai to detect furry cub content.",
   "main": "src/index.js",
   "types": "index.d.ts",
