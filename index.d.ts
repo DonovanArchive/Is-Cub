@@ -8,6 +8,7 @@ declare namespace IsCub {
 	export interface SingleResponse {
 		cub: boolean;
 		sureness: number;
+		file: Buffer | null;
 		scores: Record<"cub" | "notCub", number>;
 	}
 

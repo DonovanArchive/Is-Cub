@@ -42,6 +42,7 @@ async function awaitReady(time = 1000) {
  * @typedef SingleResponse - singular response
  * @prop {boolean} cub - if the provided image if cub
  * @prop {number} sureness - how sure we are that the image is or isn't cub
+ * @prop {(Buffer | null)} file - the file buffer, if keepFrames is true
  * @prop {object} scores - the individual scores
  * @prop {number} scores.cub
  * @prop {number} scores.notCub 
@@ -52,6 +53,7 @@ async function awaitReady(time = 1000) {
  * @prop {number} frame - the frame this response was generated from
  * @prop {boolean} cub - if the provided image if cub
  * @prop {number} sureness - how sure we are that the image is or isn't cub
+ * @prop {(Buffer | null)} file - the file buffer, if keepFrames is true
  * @prop {object} scores - the individual scores
  * @prop {number} scores.cub
  * @prop {number} scores.notCub 
@@ -61,6 +63,7 @@ async function awaitReady(time = 1000) {
  * @typedef AnimatedResponse - Animated or video response
  * @prop {boolean} cub - if the provided image if cub
  * @prop {number} sureness - how sure we are that the image is or isn't cub
+ * @prop {(Buffer | null)} file - the file buffer, if keepFrames is true
  * @prop {object} scores - the individual scores
  * @prop {number} scores.cub
  * @prop {number} scores.notCub 
@@ -92,9 +95,10 @@ function condenseMulti(val) {
  * 
  * @param {string} input - the file or url to process
  * @param {number} [sampleSize=5] - the sample size for video files
+ * @param {boolean} [keepFrames=false] - if used frames should be returned
  * @returns {Promise<SingleResponse | AnimatedResponse>} 
  */
-async function isCub(input, sampleSize = 5) {
+async function isCub(input, sampleSize = 5, keepFrames = false) {
 	if(!input) throw new Error("Input Is Required.");
 	let buf;
 	if(Buffer.isBuffer(input)) buf = input;
@@ -131,6 +135,7 @@ async function isCub(input, sampleSize = 5) {
 		return {
 			cub: cubScore === 100 || cubScore > notCubScore,
 			sureness: (cubScore === 100 || cubScore > notCubScore) ? cubScore : notCubScore,
+			file: keepFrames ? buf : null,
 			scores: {
 				cub: cubScore < 1 ? 0 : cubScore,
 				notCub: notCubScore < 1 ? 0 : notCubScore
