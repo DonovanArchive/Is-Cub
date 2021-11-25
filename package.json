@@ -1,5 +1,5 @@
 {
-  "name": "@furries-suck/is-cub",
+  "name": "is-cub",
   "version": "1.0.8",
   "description": "An ai to detect furry cub content.",
   "main": "src/index.js",
