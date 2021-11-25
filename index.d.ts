@@ -1,7 +1,7 @@
 import TeachableMachine from "@sashido/teachablemachine-node";
 
 declare namespace IsCub {
-	export function isCub(file: string, sampleSize?: number): Promise<SingleResponse | AnimatedResponse>;
+	export function isCub(file: string, sampleSize?: number, keepFrames?: boolean): Promise<SingleResponse | AnimatedResponse>;
 	// @ts-expect-error
 	export default isCub;
 
