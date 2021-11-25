@@ -18,7 +18,7 @@ if(!input) {
 	process.exit(-1);
 }
 
-if(isNaN(sampleSize) || sampleSize < 1) {
+if(sampleSize && (isNaN(sampleSize) || sampleSize < 1)) {
 	console.log("Invalid Sample Size Provided.");
 	process.exit(-1);
 }
