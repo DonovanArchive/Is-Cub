@@ -73,12 +73,13 @@ async function awaitReady(time = 1000) {
  * @prop {Array<IndividualAnimatedResponse>} overall.notCub
  */
 
-function condenseMulti(val) {
+function condenseMulti(val, keepFrames) {
 	const totalCubScore = parseFloat((val.reduce((a,b) => a + b.scores.cub, 0) / val.length).toFixed(2));
 	const totalNotCubScore = parseFloat((val.reduce((a,b) => a + b.scores.notCub, 0) / val.length).toFixed(2));
 	return {
 		cub: totalCubScore === 100 || totalCubScore > totalNotCubScore,
 		sureness: (totalCubScore === 100 || totalCubScore > totalNotCubScore) ? totalCubScore : totalNotCubScore,
+		file: keepFrames && (totalCubScore === 100 || totalCubScore > totalNotCubScore) ? val.sort((a,b) => a.sureness - b.sureness)[0].file || null : null,
 		scores: {
 			cub: totalCubScore,
 			notCub: totalNotCubScore
@@ -122,9 +123,9 @@ async function isCub(input, sampleSize = 5, keepFrames = false) {
 	const { mime } = await fileTypeFromBuffer(buf);
 	if(mime && mime.startsWith("video/") || mime === "image/gif") {
 		const { frames, done } = await getFrames(input, sampleSize);
-		const all = await Promise.all(frames.map(async(f) => ({ frame: Number(basename(f).split(".")[0].split("_")[1]), ...(await isCub(f)) })));
+		const all = await Promise.all(frames.map(async(f) => ({ frame: Number(basename(f).split(".")[0].split("_")[1]), ...(await isCub(f, sampleSize, keepFrames)) })));
 		done();
-		return condenseMulti(all);
+		return condenseMulti(all, keepFrames);
 	} else {
 		const check = await model.classify({
 			imageUrl: `data:${mime};base64,${buf.toString("base64")}`
