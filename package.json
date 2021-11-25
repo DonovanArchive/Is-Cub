@@ -31,6 +31,9 @@
     "url": "git+https://github.com/DonovanDMC/Is-Cub.git"
   },
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "is-cub": "./src/bin.js"
   }
