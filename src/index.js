@@ -1,15 +1,18 @@
 // https://stackoverflow.com/a/51771139
 import "./disable_warn.js";
 import TeachableMachine from "@sashido/teachablemachine-node";
-import { fileTypeFromFile } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import debugFunc from "debug";
 const debug = debugFunc("is-cub");
 import getFrames from "./get-frames.js";
-import { readFileSync } from "fs";
-import { basename } from "path";
+import { existsSync, readFileSync } from "fs";
+import { basename, dirname } from "path";
+import fetch from "node-fetch";
+import { fileURLToPath } from "url";
 const model = new TeachableMachine({
 	modelUrl: "https://teachablemachine.withgoogle.com/models/easeCRv0Q/"
 });
+const userAgent = `Is-Cub/${JSON.parse(readFileSync(`${dirname(fileURLToPath(import.meta.url))}/../package.json`).toString()).version} (https://github.com/DonovanDMC/Is-Cub)`;
 
 let i = 0;
 async function awaitReady(time = 1000) {
@@ -87,21 +90,40 @@ function condenseMulti(val) {
 
 /**
  * 
- * @param {string} file - the file to process
+ * @param {string} input - the file or url to process
  * @param {number} [sampleSize=5] - the sample size for video files
  * @returns {Promise<SingleResponse | AnimatedResponse>} 
  */
-async function isCub(file, sampleSize = 5) {
+async function isCub(input, sampleSize = 5) {
+	if(!input) throw new Error("Input Is Required.");
+	let buf;
+	if(Buffer.isBuffer(input)) buf = input;
+	else if(/^[a-zA-Z0-9+/]={0,3}$/.test(input)) buf = Buffer.from(input.split(",")[1], "base64");
+	else if(/^[a-zA-Z0-9-_]={0,3}$/.test(input)) buf = Buffer.from(input.split(",")[1], "base64url");
+	else if(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(input)) {
+		const get = await fetch(input, {
+			method: "GET",
+			headers: {
+				"User-Agent": userAgent
+			}
+		});
+		if(get.status < 200 || get.status > 399) throw new Error(`Failed to fetch input "${input}"`);
+		else buf = await get.arrayBuffer().then(b => Buffer.from(b));
+	} else {
+		if(!existsSync(input)) throw new Error(`File Input "${input}" Does Not Exist.`);
+		buf = readFileSync(input);
+	}
+	if(!buf) throw new Error(`Failed To Retrieve Anything From Input "${input}"`);
 	await awaitReady();
-	const { mime } = await fileTypeFromFile(file);
+	const { mime } = await fileTypeFromBuffer(buf);
 	if(mime && mime.startsWith("video/") || mime === "image/gif") {
-		const { frames, done } = await getFrames(file, sampleSize);
+		const { frames, done } = await getFrames(input, sampleSize);
 		const all = await Promise.all(frames.map(async(f) => ({ frame: Number(basename(f).split(".")[0].split("_")[1]), ...(await isCub(f)) })));
 		done();
 		return condenseMulti(all);
 	} else {
 		const check = await model.classify({
-			imageUrl: `data:${mime};base64,${Buffer.from(readFileSync(file)).toString("base64")}`
+			imageUrl: `data:${mime};base64,${buf.toString("base64")}`
 		}).catch(err => err);
 		if(!Array.isArray(check)) throw new Error(`Recieved non-array response: ${typeof check === "object" ? JSON.stringify(check) : check}`);
 		const cubScore = parseFloat((check.find(c => c.class === "Cub").score * 100).toFixed(2));
